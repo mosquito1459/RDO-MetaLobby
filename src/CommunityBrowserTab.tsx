@@ -6,7 +6,6 @@ import {
   Copy,
   Dices,
   Ghost,
-  Info,
   KeyRound,
   Lock,
   LockOpen,
@@ -34,11 +33,11 @@ interface CommunityBrowserTabProps {
 }
 
 const inputCls =
-  "bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 w-full";
+  "w-full rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-amber-500/60";
 const btnPrimary =
-  "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-amber-600 hover:bg-amber-500 text-zinc-950";
+  "inline-flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 bg-amber-600 hover:bg-amber-500 text-zinc-950";
 const btnSecondary =
-  "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-800 hover:bg-zinc-700 text-zinc-100";
+  "inline-flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700 hover:text-zinc-100";
 
 const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -54,22 +53,23 @@ function ModalShell({
 }) {
   return (
     <div
-      className="fixed inset-0 z-30 bg-black/70 flex items-center justify-center p-4"
+      className="fixed inset-0 z-30 flex items-center justify-center bg-black/70 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-zinc-900 border border-zinc-800 rounded-lg max-w-md w-full p-5 space-y-4"
+        className="rise w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)]"
+        style={{ "--d": "0ms" } as React.CSSProperties}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">{title}</h3>
+          <h3 className="font-medium tracking-tight text-zinc-100">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-100 transition-colors"
+            className="rounded p-1 text-zinc-500 transition-colors hover:text-zinc-100"
             aria-label="Close"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
         {children}
@@ -116,18 +116,20 @@ function UnlockModal({
 
   return (
     <ModalShell title={room.roomName} onClose={onClose}>
-      <div className="space-y-1">
-        <label className="text-sm text-zinc-400">Password</label>
+      <div className="mt-4 space-y-1">
+        <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Password
+        </label>
         <input
           type="password"
           value={pw}
           onChange={(e) => setPw(e.currentTarget.value)}
-          className={`${inputCls} font-mono`}
+          className={`${inputCls} font-mono tracking-wider`}
           autoFocus
         />
+        {error && <p className="pt-1 text-xs text-red-400">{error}</p>}
       </div>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-      <div className="flex justify-end gap-2">
+      <div className="mt-5 flex justify-end gap-2">
         <button type="button" className={btnSecondary} onClick={onClose}>
           Cancel
         </button>
@@ -137,7 +139,7 @@ function UnlockModal({
           disabled={busy}
           onClick={() => void submit()}
         >
-          <KeyRound className="h-4 w-4" /> Unlock & Join
+          <KeyRound className="h-4 w-4" strokeWidth={1.8} /> Unlock & Join
         </button>
       </div>
     </ModalShell>
@@ -203,11 +205,20 @@ function HostModal({
     }
   };
 
+  const modeBtn = (selected: boolean): string =>
+    `flex-1 rounded-lg border px-3 py-2 text-sm transition-all active:scale-[0.98] ${
+      selected
+        ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
+        : "border-zinc-800 bg-zinc-950/50 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
+    }`;
+
   return (
     <ModalShell title="Host a Room" onClose={onClose}>
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <label className="text-sm text-zinc-400">Room Name *</label>
+      <div className="mt-4 space-y-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Room Name
+          </label>
           <input
             value={roomName}
             onChange={(e) => setRoomName(e.currentTarget.value)}
@@ -215,55 +226,53 @@ function HostModal({
             autoFocus
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-zinc-400">Description</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Description
+          </label>
           <textarea
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.currentTarget.value)}
-            className={inputCls}
+            className={`${inputCls} resize-none`}
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-zinc-400">Session Key</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Session Key
+          </label>
           <div className="flex gap-2">
             <input
               value={sessionKey}
               onChange={(e) => setSessionKey(sanitizeKey(e.currentTarget.value))}
               maxLength={32}
-              className={`${inputCls} font-mono flex-1`}
+              className={`${inputCls} flex-1 font-mono tracking-wider`}
             />
             <button
               type="button"
               title="Generate new key"
-              className="inline-flex items-center justify-center rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-100 px-3 transition-colors"
+              className="inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-zinc-300 transition-all hover:border-zinc-700 hover:text-zinc-100 active:scale-[0.98]"
               onClick={() => setSessionKey(randomSessionCode("ROOM"))}
             >
-              <Dices className="h-4 w-4" />
+              <Dices className="h-4 w-4" strokeWidth={1.8} />
             </button>
           </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-zinc-400">Lock Mode</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Access
+          </label>
           <div className="flex gap-2">
             <button
               type="button"
-              className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors ${
-                !locked
-                  ? "bg-zinc-800 text-zinc-100 border-amber-600"
-                  : "bg-zinc-950 text-zinc-400 border-zinc-800 hover:bg-zinc-900"
-              }`}
+              className={modeBtn(!locked)}
               onClick={() => setLocked(false)}
             >
               Open
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors ${
-                locked
-                  ? "bg-zinc-800 text-zinc-100 border-amber-600"
-                  : "bg-zinc-950 text-zinc-400 border-zinc-800 hover:bg-zinc-900"
-              }`}
+              className={modeBtn(locked)}
               onClick={() => setLocked(true)}
             >
               Password Protected
@@ -271,18 +280,20 @@ function HostModal({
           </div>
         </div>
         {locked && (
-          <div className="space-y-1">
-            <label className="text-sm text-zinc-400">PIN</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              PIN
+            </label>
             <input
               value={pin}
               onChange={(e) => setPin(e.currentTarget.value)}
               maxLength={32}
-              className={`${inputCls} font-mono`}
+              className={`${inputCls} font-mono tracking-wider`}
             />
           </div>
         )}
-        {error && <p className="text-red-400 text-sm">{error}</p>}
-        <div className="flex justify-end gap-2">
+        {error && <p className="text-xs text-red-400">{error}</p>}
+        <div className="flex justify-end gap-2 pt-1">
           <button type="button" className={btnSecondary} onClick={onClose}>
             Cancel
           </button>
@@ -292,7 +303,7 @@ function HostModal({
             disabled={submitting}
             onClick={() => void submit()}
           >
-            {submitting ? "Creating…" : "Start Broadcasting"}
+            {submitting ? "Broadcasting…" : "Start Broadcasting"}
           </button>
         </div>
       </div>
@@ -306,14 +317,13 @@ export default function CommunityBrowserTab({
 }: CommunityBrowserTabProps) {
   if (!isBackendConfigured) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-1">
-        <div className="flex items-center gap-2 text-zinc-300">
-          <Info className="h-4 w-4" />
-          <span>Community directory is disabled.</span>
+      <div className="rise pt-8">
+        <div className="rounded-2xl border border-dashed border-zinc-800 px-6 py-10 text-center">
+          <p className="text-sm text-zinc-400">Community directory is disabled.</p>
+          <p className="mt-1 font-mono text-[11px] text-zinc-600">
+            VITE_ROOMS_URL — see .env.example
+          </p>
         </div>
-        <p className="font-mono text-xs text-zinc-500">
-          VITE_ROOMS_URL — see .env.example
-        </p>
       </div>
     );
   }
@@ -383,154 +393,153 @@ function CommunityBrowserInner({
   const pathHint = "Set your game path first.";
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <h2 className="font-semibold text-lg">Community Rooms</h2>
-          <span className="text-zinc-500 text-sm">{rooms.length} online</span>
+    <div className="rise pt-8" style={{ "--d": "100ms" } as React.CSSProperties}>
+      {/* Page head: title + live count + host action */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-2xl font-light tracking-tight text-zinc-100">
+            Community Rooms
+          </h2>
+          <span className="flex items-center gap-1.5 font-mono text-xs text-zinc-500">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+            {rooms.length} online
+          </span>
         </div>
-        <button
-          type="button"
-          className={btnPrimary}
-          disabled={!gamePath || hosting !== null}
-          title={!gamePath ? pathHint : "Stop broadcasting before hosting another room."}
-          onClick={() => setShowHost(true)}
-        >
-          <Radio className="h-4 w-4" /> Host a Room
+        <button type="button" className={btnPrimary} disabled={!gamePath || hosting !== null} title={!gamePath ? pathHint : "Stop broadcasting before hosting another room."} onClick={() => setShowHost(true)}>
+          <Radio className="h-4 w-4" strokeWidth={1.8} /> Host a Room
         </button>
       </div>
 
-      {!gamePath && <p className="text-sm text-zinc-500">{pathHint}</p>}
-
+      {/* Live broadcasting bar — a status pill, not another card */}
       {hosting && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-center gap-3">
-          <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-          <span className="text-sm text-zinc-300">
-            Broadcasting <span className="font-medium">{hosting.roomName}</span>{" "}
-            <span className="text-zinc-500">— heartbeat every 30s</span>
+        <div className="mt-6 flex items-center gap-3 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-4 py-3">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-500 opacity-60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
           </span>
+          <span className="text-sm text-zinc-300">
+            Broadcasting <span className="font-medium text-zinc-100">{hosting.roomName}</span>
+          </span>
+          <span className="font-mono text-[11px] text-zinc-600">heartbeat 30s</span>
           <button
             type="button"
-            className={`${btnSecondary} ml-auto`}
+            className={`${btnSecondary} ml-auto py-1.5!`}
             onClick={() => {
               stopHosting(hosting.roomId, true);
               setHosting(null);
             }}
           >
-            <Square className="h-4 w-4" /> Stop
+            <Square className="h-3.5 w-3.5" strokeWidth={1.8} /> Stop
           </button>
         </div>
       )}
 
       {subError && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
+        <div className="mt-6 rounded-xl border border-red-500/25 bg-red-500/[0.06] px-4 py-3 text-sm text-red-400">
           {subError}
         </div>
       )}
 
       {joinError && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
+        <div className="mt-4 rounded-xl border border-red-500/25 bg-red-500/[0.06] px-4 py-3 text-sm text-red-400">
           {joinError}
         </div>
       )}
 
+      {/* Directory */}
       {rooms.length === 0 && !subError ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg flex flex-col items-center gap-2 py-10 text-zinc-500">
-          <Ghost className="h-8 w-8" />
-          <p className="text-sm">No active rooms right now — host one!</p>
+        <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-800 py-16 text-zinc-600">
+          <Ghost className="h-7 w-7" strokeWidth={1.5} />
+          <p className="text-sm">No active rooms right now — host one.</p>
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {rooms.map((room) => {
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {rooms.map((room, i) => {
             const ago = Math.max(
               0,
               Math.floor((Date.now() - Date.parse(room.lastPing)) / 1000),
             );
+            const own = room.hostClientId === CLIENT_ID;
             const joinDisabled = joiningId !== null || !gamePath;
             return (
-              <div
+              <article
                 key={room.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-2"
+                className="group rounded-2xl border border-zinc-800/70 bg-zinc-900/30 p-5 transition-all hover:border-zinc-700/70 hover:bg-zinc-900/60"
+                style={{ "--d": `${160 + i * 60}ms` } as React.CSSProperties}
               >
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium">{room.roomName}</span>
+                  <h3 className="font-medium tracking-tight text-zinc-100">
+                    {room.roomName}
+                  </h3>
                   <span
-                    className={`inline-flex items-center gap-1 text-xs border rounded px-1.5 py-0.5 ${
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${
                       room.isLocked
-                        ? "border-amber-500/40 text-amber-500"
-                        : "border-emerald-500/40 text-emerald-500"
+                        ? "border-amber-500/30 text-amber-500"
+                        : "border-emerald-500/30 text-emerald-500"
                     }`}
                   >
                     {room.isLocked ? (
-                      <Lock className="h-4 w-4" />
+                      <Lock className="h-3 w-3" strokeWidth={2} />
                     ) : (
-                      <LockOpen className="h-4 w-4" />
+                      <LockOpen className="h-3 w-3" strokeWidth={2} />
                     )}
                     {room.isLocked ? "Locked" : "Open"}
                   </span>
-                  {room.hostClientId === CLIENT_ID && (
-                    <span className="inline-flex items-center text-xs text-zinc-500 border border-zinc-800 rounded px-1.5 py-0.5">
+                  {own && (
+                    <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-400">
                       Yours
                     </span>
                   )}
                 </div>
 
                 {room.description && (
-                  <p className="text-sm text-zinc-400 line-clamp-2">
+                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-zinc-500">
                     {room.description}
                   </p>
                 )}
 
-                {!room.isLocked || room.hostClientId === CLIENT_ID ? (
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm text-amber-500">
-                      {room.sessionKey}
-                    </span>
-                    <button
-                      type="button"
-                      title="Copy session key"
-                      className="p-1 rounded text-zinc-500 hover:text-zinc-200 transition-colors"
-                      onClick={() => copyKey(room)}
-                    >
-                      {copiedId === room.id ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
+                {/* Key row: shown unlocked or to the owner; hidden from strangers on locked rooms */}
+                {!room.isLocked || own ? (
+                  <button
+                    type="button"
+                    onClick={() => copyKey(room)}
+                    title="Copy session key"
+                    className="mt-3 flex items-center gap-2 font-mono text-sm tracking-wider text-amber-500 transition-colors hover:text-amber-400"
+                  >
+                    {room.sessionKey}
+                    {copiedId === room.id ? (
+                      <Check className="h-3.5 w-3.5 text-emerald-500" strokeWidth={2} />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={1.8} />
+                    )}
+                  </button>
                 ) : (
-                  <p className="text-xs text-zinc-500 flex items-center gap-1">
-                    <Lock className="h-3 w-3" /> Session key is hidden until
-                    unlocked.
+                  <p className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-zinc-600">
+                    <Lock className="h-3 w-3" strokeWidth={2} /> key hidden until unlocked
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">
-                      pinged {ago}s ago
-                    </span>
+                <div className="mt-4 flex items-center justify-between border-t border-zinc-800/60 pt-3">
+                  <span className="font-mono text-[11px] text-zinc-600">
+                    pinged {ago}s ago
                     {savedFlash === room.id && (
-                      <span className="text-emerald-400 text-xs">
-                        Joined — restart RDR2.
-                      </span>
+                      <span className="ml-2 text-emerald-500">joined — restart RDR2</span>
                     )}
-                  </div>
+                  </span>
                   {room.isLocked ? (
                     <button
                       type="button"
-                      className={btnSecondary}
+                      className={`${btnSecondary} py-1.5! text-[13px]!`}
                       disabled={joinDisabled}
                       title={!gamePath ? pathHint : undefined}
                       onClick={() => setUnlockTarget(room)}
                     >
-                      <KeyRound className="h-4 w-4" /> Unlock & Join
+                      <KeyRound className="h-3.5 w-3.5" strokeWidth={1.8} /> Unlock & Join
                     </button>
                   ) : (
                     <button
                       type="button"
-                      className={btnPrimary}
+                      className={`${btnPrimary} py-1.5! text-[13px]!`}
                       disabled={joinDisabled}
                       title={!gamePath ? pathHint : undefined}
                       onClick={() => void joinRoom(room)}
@@ -539,7 +548,7 @@ function CommunityBrowserInner({
                     </button>
                   )}
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

@@ -1,16 +1,74 @@
 @import "tailwindcss";
 
+/* Design tokens — one accent (amber, desaturated), warm-neutral zinc base. */
+:root {
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #09090b; /* zinc-950 */
   color: #e4e4e7; /* zinc-200 */
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Staggered load-in: parent sets --d per child (cascading reveal, transform+opacity only). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Simple skeleton shimmer (layout-matched boxes, not generic spinners). */
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(
+    100deg,
+    #18181b 40%,
+    #27272a 50%,
+    #18181b 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Desktop-app scrollbars, dark and slim. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3f3f46;
+}
+::selection {
+  background: rgba(217, 119, 6, 0.35);
 }
