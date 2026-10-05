@@ -1,0 +1,58 @@
+name: Test Build (Private Artifact)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git branch or commit to build'
+        required: false
+        default: 'main'
+
+jobs:
+  build:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build installer
+        run: npm run tauri build
+
+      - name: Stage Release Artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist-target-release/bundle"
+          Copy-Item "src-tauri/target/release/rdo-metalobby.exe" -Destination "dist-target-release/" -Force
+          Copy-Item "src-tauri/target/release/bundle/*" -Destination "dist-target-release/bundle/" -Recurse -Force
+
+      - name: Upload Target Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rdo-metalobby-target-release
+          path: dist-target-release/
+          if-no-files-found: error
+          retention-days: 14

@@ -20,6 +20,7 @@ server/smoke-rooms.json
 # Rust build
 src-tauri/target
 src-tauri/gen/schemas
+.remote-download-tmp
 
 # Editor directories and files
 .vscode/*
