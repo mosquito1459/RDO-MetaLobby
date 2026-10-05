@@ -1,0 +1,16 @@
+services:
+  rdo-rooms:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      # Keep the snapshot on a volume so rooms survive container recreation.
+      SNAPSHOT_PATH: /data/rooms.json
+      # MAX_ROOMS: 200
+      # TTL_MS: 90000
+    volumes:
+      - rdo-rooms:/data
+    restart: unless-stopped
+
+volumes:
+  rdo-rooms:
